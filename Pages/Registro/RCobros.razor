@@ -2,6 +2,7 @@
 @page "/Cobros/{cobroId:int}"
 
 @using Jordy_P2_AP2.Models
+@using Jordy_P2_AP2.BLL
 
 @inject IToastService Toast
 
@@ -9,9 +10,9 @@
     <DataAnnotationsValidator />
 
     <div class="card">
-        <div class="container">
+
             <div class="card-header">
-                <h3>Registro cobro</h3>
+                <h3>Registro de Cobros</h3>
             </div>
 
             <div class="card-body">
@@ -19,7 +20,7 @@
 
                     @*Primera parte*@
                     <div class="form-group form-inline">
-                        <div class="form-group col-6">
+                        <div class="form-group">
                             <label> Cobro Id </label>
                             &nbsp;
                             <div class="input-group">
@@ -60,7 +61,7 @@
 
                         <div class="table-responsive text-nowrap" style="position: relative; height:200px; overflow: auto; display: block;">
                             <table class="table table-striped">
-                                <thead style="background-color: gray;">
+                                <thead style="background-color: darkturquoise;">
                                     <tr>
                                         <th>ID</th>
                                         <th>Fecha</th>
@@ -95,7 +96,7 @@
                             <span class="form-control">@cobro.Detalle.Count()</span>
                         </div>
 
-                        <div class="form-group col-6">
+                        <div class="form-group ">
                             <label>Total cobrado</label>
                             &nbsp;
                             <InputNumber @bind-Value="cobro.TotalCobrado" class="form-control" readOnly="true" />
@@ -128,11 +129,114 @@
                     </button>
                 </div>
             </div>
-        </div>
     </div>
 </EditForm>
 
 
 @code {
     Cobros cobro = new Cobros();
+
+    List<Clientes> ClienteList = new List<Clientes>();
+
+    [Parameter]
+    public int cobroId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Nuevo();
+        await BuscarParametro();
+    }
+
+    private async Task BuscarParametro()
+    {
+        if (cobroId > 0)
+        {
+            var Cobro = CobrosBLL.Buscar(cobroId);
+
+            if (Cobro != null)
+            {
+                Cobro.Detalle = await VentasBLL.GetVentasCobradas(Cobro.ClienteId);
+                this.cobro = Cobro;
+            }
+            else
+                Toast.ShowError("El cobro no existe");
+        }
+    }
+
+    private void Nuevo()
+    {
+        cobro = new Cobros();
+        ClienteList = ClientesBLL.GetList(c => true);
+        cobro.Fecha = DateTime.Now;
+    }
+
+    private void Guardar()
+    {
+        bool guardado;
+        if (cobro.CobroId == 0)
+        {
+            cobro.Detalle.RemoveAll(d => d.Cobrado == 0);
+
+            guardado = CobrosBLL.Guardar(cobro);
+
+            if (guardado)
+            {
+                Toast.ShowSuccess("Guardado correctamente");
+                Nuevo();
+            }
+            else
+                Toast.ShowError("No se pudo guardar correctamente");
+        }
+        else
+            Toast.ShowWarning("No puede modificar el cobro");
+
+    }
+
+    private async Task Buscar()
+    {
+        var Cobro = CobrosBLL.Buscar(cobro.CobroId);
+
+        if (Cobro != null)
+        {
+            Cobro.Detalle = await VentasBLL.GetVentasCobradas(Cobro.ClienteId);
+            this.cobro = Cobro;
+        }
+        else
+            Toast.ShowError("El cobro no existe");
+    }
+
+    private void Eliminar()
+    {
+        bool elimino;
+
+        elimino = CobrosBLL.Eliminar(cobro.CobroId);
+
+        if (elimino)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+            Toast.ShowError("No fue posible eliminar");
+    }
+
+    private void Cobrar(CobrosDetalle cobroDetalle)
+    {
+        if (cobroDetalle.Cobrado == 0)
+        {
+            cobroDetalle.Cobrado = cobroDetalle.Venta.Balance;
+            cobro.TotalCobrado += cobroDetalle.Cobrado;
+        }
+        else
+        {
+            cobroDetalle.Cobrado = 0;
+            cobro.TotalCobrado -= cobroDetalle.Venta.Balance;
+        }
+    }
+
+    private async Task ObtenerVentasPendientes()
+    {
+        if (cobro.CobroId == 0)
+            cobro.Detalle = await VentasBLL.GetVentasPendiente(cobro.ClienteId);
+    }
 }
