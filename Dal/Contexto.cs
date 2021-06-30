@@ -6,7 +6,7 @@ namespace Jordy_P2_AP2.Dal
 {
     public class Contexto: DbContext
     {
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Clientes>().HasData(new Clientes() { ClienteId = 1, Nombres = "FERRETERIA GAMA" });

@@ -1,21 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
 
 namespace Jordy_P2_AP2.Models
 {
-    public class Ventas
+    public class Cobros
     {
         [Key]
-        public int VentaId { get; set; }
+        public int CobroId { get; set; }
         public DateTime Fecha { get; set; }
         public int ClienteId { get; set; }
-        public virtual Clientes Cliente { get; set; }
-        public double Monto { get; set; }
-        public double Balance { get; set; }
+        [Range(minimum: 1, maximum: int.MaxValue, ErrorMessage = "Debe realizar un cobro")]
+        public double TotalCobrado { get; set; }
+        public string Observaciones { get; set; }
 
-        [ForeignKey("VentaId")]
+        [ForeignKey("CobroId")]
         public virtual List<CobrosDetalle> Detalle { get; set; } = new List<CobrosDetalle>();
     }
 }
