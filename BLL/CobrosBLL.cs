@@ -20,11 +20,13 @@ namespace Jordy_P2_AP2.BLL
         {
             bool Eliminado = false;
             Contexto contexto = new Contexto();
-
+            
+            
             try
             {
+                
                 var cobro = Buscar(id);
-
+                
                 contexto.Entry(cobro).State = EntityState.Deleted;
                 Eliminado = (contexto.SaveChanges() > 0);
 
