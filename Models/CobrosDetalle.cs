@@ -10,9 +10,9 @@ namespace Jordy_P2_AP2.Models
         [Key]
         public int Id { get; set; }
         public int CobroId { get; set; }
-        public virtual Cobros Cobro { get; set; }
+        public Cobros Cobro { get; set; }
         public int VentaId { get; set; }
-        public virtual Ventas Venta { get; set; }
+        public Ventas Venta { get; set; }
         public double Cobrado { get; set; }
     }
 }

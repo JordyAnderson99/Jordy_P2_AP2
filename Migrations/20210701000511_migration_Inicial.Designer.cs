@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Jordy_P2_AP2.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20210630232521_migration_Inicial")]
+    [Migration("20210701000511_migration_Inicial")]
     partial class migration_Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
